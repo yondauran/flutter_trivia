@@ -1,15 +1,64 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_trivia/services/api.dart';
+import 'package:flutter_trivia/services/locator.dart';
 
 class CategoryQuestionCount with ChangeNotifier {
   int categoryId;
+  double _min, _max, _amount;
   Counts counts;
 
   CategoryQuestionCount({
     this.categoryId,
     this.counts,
   });
+
+  double get min => _min;
+  double get max => _max;
+  double get amount => _amount;
+
+  set amount(double value) {
+    _amount = value;
+    notifyListeners();
+  }
+
+  setMinMaxAndAmount(String difficulty) {
+    _min = math.min(counts.totalHardQuestionCount.toDouble(),
+        counts.totalMediumQuestionCount.toDouble());
+    _min = math.min(_min, counts.totalEasyQuestionCount.toDouble());
+
+    if (_min - 5 > 10)
+      _min = 10;
+    else
+      _min = 5;
+
+    if (difficulty == "easy")
+      _max = counts.totalEasyQuestionCount.toDouble();
+    else if (difficulty == "medium")
+      _max = counts.totalMediumQuestionCount.toDouble();
+    else if (difficulty == "hard")
+      _max = counts.totalHardQuestionCount.toDouble();
+    else if (difficulty == "any") _max = counts.totalQuestionCount.toDouble();
+
+    if (_min > 10)
+      _amount = 10;
+    else if (_min + 5 < _max)
+      _amount = _min + 5;
+    else
+      _amount = _min;
+
+    notifyListeners();
+  }
+
+  void getQuestionCount(int id) async {
+    var questionCount = await locator.get<Api>().getCategoryQuestionCount(id);
+    categoryId = id;
+    counts = questionCount;
+
+    notifyListeners();
+  }
 
   factory CategoryQuestionCount.fromJson(String str) {
     var jsonMap = json.decode(str);

@@ -7,16 +7,19 @@ import 'package:flutter_trivia/services/locator.dart';
 class Categories with ChangeNotifier {
   List<TriviaCategory> triviaCategories;
   TriviaCategory _selected;
+  Api _api = locator.get<Api>();
 
   Categories({
     this.triviaCategories,
   });
 
-  getCategories() async {
-    triviaCategories = await locator.get<Api>().getCategories();
+  Future<bool> getCategories() async {
+    triviaCategories = await _api.getCategories();
     triviaCategories.sort((a, b) => a.name.compareTo(b.name));
     selected = triviaCategories[0];
+    print(selected);
     notifyListeners();
+    return true;
   }
 
   TriviaCategory get selected => _selected;

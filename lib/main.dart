@@ -22,12 +22,16 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.blueGrey[900],
           brightness: Brightness.dark),
       routes: {
-        '/': (context) => ChangeNotifierProvider(
-              builder: (context) => Categories(),
-              child: ChangeNotifierProvider(
-                builder: (context) => CategoryQuestionCount(),
-                child: HomePage(),
-              ),
+        '/': (context) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider<Categories>.value(
+                  value: Categories(),
+                ),
+                ChangeNotifierProvider<CategoryQuestionCount>.value(
+                  value: CategoryQuestionCount(),
+                ),
+              ],
+              child: HomePage(),
             ),
         '/trivia': (context) => Trivia()
       },
@@ -39,87 +43,90 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   final ApiDifficulty _difficulty = ApiDifficulty();
   final TriviaType _type = TriviaType();
-  final double _amount = 6;
 
   @override
   Widget build(BuildContext context) {
+    var _categoryQuestionCount = Provider.of<CategoryQuestionCount>(context);
+    var _categories = Provider.of<Categories>(context);
+
+    getCategories() async {
+      if (_categories.triviaCategories == null) {
+        var res = await _categories.getCategories();
+        print("asdf" + res.toString());
+        _categoryQuestionCount.getQuestionCount(_categories.selected.id);
+        _categoryQuestionCount.setMinMaxAndAmount(_difficulty.selected.value);
+      }
+    }
+
+    getCategories();
+
     return Scaffold(
       body: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: 40),
-        child: Consumer<Categories>(
-          builder: (context, _categories, _) {
-            if (_categories.triviaCategories == null)
-              _categories.getCategories();
-
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (_categories.triviaCategories == null) ...[
-                  CircularProgressIndicator()
-                ] else ...[
-                  Column(
-                    children: <Widget>[
-                      Text("Category"),
-                      SizedBox(
-                        height: 56,
-                        child: DropdownButton<TriviaCategory>(
-                          hint: Text("Select a Category"),
-                          value: _categories.selected,
-                          isExpanded: true,
-                          onChanged: (val) {
-                            _categories.selected = val;
-                          },
-                          items: _categories.triviaCategories != null
-                              ? _categories.triviaCategories
-                                  .map(
-                                    (o) => DropdownMenuItem<TriviaCategory>(
-                                          value: o,
-                                          child: Text(o.name),
-                                        ),
-                                  )
-                                  .toList()
-                              : null,
-                        ),
-                      ),
-                      SizedBox(height: 28)
-                    ],
-                  ),
-                  OptionsSelector(
-                      _difficulty, "Difficulty", "Select a Difficulty"),
-                  OptionsSelector(_type, "Type", "Select a Type"),
-                  Slider(
-                    onChanged: _amount == 5
-                        ? null
-                        : (value) {
-//                      setState(() {
-//                        _amount = value;
-//                      });
-                            print(value);
-                          },
-                    value: _amount,
-                    max: 10,
-                    min: 5,
-                    divisions: 10 - 5,
-                    label: _amount.toStringAsFixed(0),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: OutlineButton(
-                      onPressed: () async {
-                        locator.get<Api>().getQuestions(_categories.selected.id,
-                            _difficulty.selected.value, _type.selected.value);
-
-                        Navigator.pushNamed(context, "/trivia");
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            if (_categories.triviaCategories == null) ...[
+              CircularProgressIndicator(),
+            ] else ...[
+              Column(
+                children: <Widget>[
+                  Text("Category"),
+                  SizedBox(
+                    height: 56,
+                    child: DropdownButton<TriviaCategory>(
+                      hint: Text("Select a Category"),
+                      value: _categories.selected,
+                      isExpanded: true,
+                      onChanged: (val) {
+                        _categories.selected = val;
+                        _categoryQuestionCount.getQuestionCount(val.id);
                       },
-                      child: Text("Start"),
+                      items: _categories.triviaCategories != null
+                          ? _categories.triviaCategories
+                              .map(
+                                (o) => DropdownMenuItem<TriviaCategory>(
+                                      value: o,
+                                      child: Text(o.name),
+                                    ),
+                              )
+                              .toList()
+                          : null,
                     ),
-                  )
-                ]
-              ],
-            );
-          },
+                  ),
+                  SizedBox(height: 28)
+                ],
+              ),
+              OptionsSelector(_difficulty, "Difficulty", "Select a Difficulty"),
+              OptionsSelector(_type, "Type", "Select a Type"),
+              Slider(
+                onChanged: (value) {
+                  _categoryQuestionCount.amount = value;
+                  print(_categoryQuestionCount.amount);
+                },
+                value: _categoryQuestionCount.amount,
+                max: _categoryQuestionCount.min,
+                min: _categoryQuestionCount.max,
+                divisions: _categoryQuestionCount.max.toInt() -
+                    _categoryQuestionCount.min.toInt(),
+                label: _categoryQuestionCount.amount.toStringAsFixed(0),
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: OutlineButton(
+                  onPressed: () async {
+                    locator.get<Api>().getQuestions(_categories.selected.id,
+                        _difficulty.selected.value, _type.selected.value);
+
+                    Navigator.pushNamed(context, "/trivia");
+                  },
+                  child: Text("Start"),
+                ),
+              )
+            ]
+          ],
         ),
       ),
     );
