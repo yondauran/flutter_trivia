@@ -9,7 +9,7 @@ class Api {
   String _categoriesUrl = "https://opentdb.com/api_category.php";
   String _categoryQuestionCountUrl =
       "https://opentdb.com/api_count.php?category=";
-  String _baseUrl = "https://opentdb.com/api.php?amount=10";
+  String _baseUrl = "https://opentdb.com/api.php?";
 
   Future<List<TriviaCategory>> getCategories() async {
     var res = await client.get(_categoriesUrl);
@@ -29,8 +29,10 @@ class Api {
     return questionCount.counts;
   }
 
-  getQuestions(dynamic category, dynamic difficulty, dynamic type) async {
-//    print(category + difficulty + type);
+  getQuestions(
+      dynamic category, dynamic difficulty, dynamic type, int amount) async {
+    _baseUrl += "amount=$amount";
+
     if (category != "any") _baseUrl += "&category=${category.toString()}";
     if (difficulty != "any") _baseUrl += "&difficulty=${difficulty.toString()}";
     if (type != "any") _baseUrl += "&type=${type.toString()}";

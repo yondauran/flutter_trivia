@@ -4,11 +4,11 @@ import 'package:flutter_trivia/services/api.dart';
 import 'package:provider/provider.dart';
 
 class Choice extends StatelessWidget {
-  final int _number;
+  final String _letter;
   final String _text;
 
-  const Choice({Key key, @required int number, @required String text})
-      : this._number = number,
+  const Choice({Key key, @required String letter, @required String text})
+      : this._letter = letter,
         this._text = text,
         super(key: key);
 
@@ -16,10 +16,9 @@ class Choice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () async {
-        },
+        onTap: () async {},
         child: ListTile(
-          leading: Text(_number.toString()),
+          leading: Text(_letter + ")"),
           title: Text(_text),
         ),
       ),

@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.blueAccent,
         scaffoldBackgroundColor: Colors.blueGrey[900],
         brightness: Brightness.dark,
+        cardColor: Colors.blueGrey[800],
       ),
       routes: {
         '/': (context) => MultiProvider(
@@ -128,6 +129,8 @@ class HomePage extends StatelessWidget {
                       Text(_categoryQuestionCount.min.toStringAsFixed(0)),
                       Expanded(
                         child: Slider(
+                          activeColor: Colors.blue,
+                          inactiveColor: Colors.blue[900],
                           onChanged: (value) {
                             _categoryQuestionCount.amount = value;
                           },
@@ -150,8 +153,11 @@ class HomePage extends StatelessWidget {
                 alignment: Alignment.center,
                 child: OutlineButton(
                   onPressed: () async {
-                    locator.get<Api>().getQuestions(_categories.selected.id,
-                        _difficulty.selected.value, _type.selected.value);
+                    locator.get<Api>().getQuestions(
+                        _categories.selected.id,
+                        _difficulty.selected.value,
+                        _type.selected.value,
+                        _categoryQuestionCount.amount.toInt());
 
                     Navigator.pushNamed(context, "/trivia");
                   },

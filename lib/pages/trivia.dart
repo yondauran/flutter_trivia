@@ -9,23 +9,24 @@ class Trivia extends StatelessWidget {
     return ChangeNotifierProvider<Questions>(
       builder: (_) => Questions(),
       child: Scaffold(
-        appBar: AppBar(title: Text("Answer de qestions"),),
+        appBar: AppBar(
+          title: Text("Answer de qestions"),
+        ),
         body: Container(
           padding: EdgeInsets.all(8),
           child: Consumer<Questions>(
             builder: (context, questions, _) => Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                if (questions.questions.isEmpty)
-                  _buildSubmitButton(questions),
-                if (questions.questions.isNotEmpty)
-                  Text("AYEEEE"),
-                new Choice(number: 1, text: "Hello"),
-                new Choice(number: 2, text: "How"),
-                new Choice(number: 3, text: "Are"),
-                new Choice(number: 4, text: "You?"),
-              ],
-            ),
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    if (questions.questions.isEmpty)
+                      _buildSubmitButton(questions),
+                    if (questions.questions.isNotEmpty) Text("AYEEEE"),
+                    new Choice(letter: "a", text: "Hello"),
+                    new Choice(letter: "b", text: "How"),
+                    new Choice(letter: "c", text: "Are"),
+                    new Choice(letter: "d", text: "You?"),
+                  ],
+                ),
           ),
         ),
       ),
