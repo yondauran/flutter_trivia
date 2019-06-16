@@ -14,7 +14,6 @@ class Api {
   Future<List<TriviaCategory>> getCategories() async {
     var res = await client.get(_categoriesUrl);
     Categories categories;
-    print(res);
 
     if (res.statusCode == 200) categories = Categories.fromJson(res.body);
     return categories.triviaCategories;

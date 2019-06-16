@@ -24,7 +24,7 @@ class CategoryQuestionCount with ChangeNotifier {
     notifyListeners();
   }
 
-  setMinMaxAndAmount(String difficulty) {
+  Future<bool> setMinMaxAndAmount(String difficulty) async {
     _min = math.min(counts.totalHardQuestionCount.toDouble(),
         counts.totalMediumQuestionCount.toDouble());
     _min = math.min(_min, counts.totalEasyQuestionCount.toDouble());
@@ -50,14 +50,24 @@ class CategoryQuestionCount with ChangeNotifier {
       _amount = _min;
 
     notifyListeners();
+    return true;
   }
 
-  void getQuestionCount(int id) async {
+  bool ensureNotNull() {
+    if (_amount != null && _min != null && _max != null && counts != null) {
+      return true;
+    } else
+      return false;
+  }
+
+  Future<bool> getQuestionCount(int id) async {
     var questionCount = await locator.get<Api>().getCategoryQuestionCount(id);
     categoryId = id;
     counts = questionCount;
+    print(counts.totalQuestionCount);
 
     notifyListeners();
+    return true;
   }
 
   factory CategoryQuestionCount.fromJson(String str) {

@@ -18,9 +18,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
-          scaffoldBackgroundColor: Colors.blueGrey[900],
-          brightness: Brightness.dark),
+        primarySwatch: Colors.blue,
+        accentColor: Colors.blueAccent,
+        scaffoldBackgroundColor: Colors.blueGrey[900],
+        brightness: Brightness.dark,
+      ),
       routes: {
         '/': (context) => MultiProvider(
               providers: [
@@ -46,15 +48,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _categoryQuestionCount = Provider.of<CategoryQuestionCount>(context);
     var _categories = Provider.of<Categories>(context);
+    var _categoryQuestionCount = Provider.of<CategoryQuestionCount>(context);
 
     getCategories() async {
       if (_categories.triviaCategories == null) {
         var res = await _categories.getCategories();
         print("asdf" + res.toString());
-        _categoryQuestionCount.getQuestionCount(_categories.selected.id);
-        _categoryQuestionCount.setMinMaxAndAmount(_difficulty.selected.value);
+        await _categoryQuestionCount.getQuestionCount(_categories.selected.id);
+        await _categoryQuestionCount
+            .setMinMaxAndAmount(_difficulty.selected.value);
       }
     }
 
@@ -67,8 +70,9 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if (_categories.triviaCategories == null) ...[
+            if (!_categoryQuestionCount.ensureNotNull()) ...[
               CircularProgressIndicator(),
             ] else ...[
               Column(
@@ -80,9 +84,12 @@ class HomePage extends StatelessWidget {
                       hint: Text("Select a Category"),
                       value: _categories.selected,
                       isExpanded: true,
-                      onChanged: (val) {
+                      onChanged: (val) async {
                         _categories.selected = val;
-                        _categoryQuestionCount.getQuestionCount(val.id);
+                        await _categoryQuestionCount
+                            .getQuestionCount(_categories.selected.id);
+                        _categoryQuestionCount
+                            .setMinMaxAndAmount(_difficulty.selected.value);
                       },
                       items: _categories.triviaCategories != null
                           ? _categories.triviaCategories
@@ -101,17 +108,43 @@ class HomePage extends StatelessWidget {
               ),
               OptionsSelector(_difficulty, "Difficulty", "Select a Difficulty"),
               OptionsSelector(_type, "Type", "Select a Type"),
-              Slider(
-                onChanged: (value) {
-                  _categoryQuestionCount.amount = value;
-                  print(_categoryQuestionCount.amount);
-                },
-                value: _categoryQuestionCount.amount,
-                max: _categoryQuestionCount.min,
-                min: _categoryQuestionCount.max,
-                divisions: _categoryQuestionCount.max.toInt() -
-                    _categoryQuestionCount.min.toInt(),
-                label: _categoryQuestionCount.amount.toStringAsFixed(0),
+              Column(
+                children: <Widget>[
+//                  Text("Amount"),
+                  RichText(
+                    text: TextSpan(children: [
+                      TextSpan(text: "Amount: "),
+                      TextSpan(
+                        text: _categoryQuestionCount.amount.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).accentColor,
+                        ),
+                      )
+                    ]),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Text(_categoryQuestionCount.min.toStringAsFixed(0)),
+                      Expanded(
+                        child: Slider(
+                          onChanged: (value) {
+                            _categoryQuestionCount.amount = value;
+                          },
+                          onChangeEnd: (value) => print(value),
+                          value: _categoryQuestionCount.amount,
+                          max: _categoryQuestionCount.max,
+                          min: _categoryQuestionCount.min,
+                          divisions: _categoryQuestionCount.max.toInt() -
+                              _categoryQuestionCount.min.toInt(),
+                          label:
+                              _categoryQuestionCount.amount.toStringAsFixed(0),
+                        ),
+                      ),
+                      Text(_categoryQuestionCount.max.toStringAsFixed(0))
+                    ],
+                  ),
+                ],
               ),
               Align(
                 alignment: Alignment.center,
@@ -147,16 +180,21 @@ class OptionsSelector extends StatefulWidget {
 class _OptionsSelectorState extends State<OptionsSelector> {
   @override
   Widget build(BuildContext context) {
+    var _categoryQuestionCount = Provider.of<CategoryQuestionCount>(context);
+
     return Column(
       children: <Widget>[
         Text(widget._label),
         DropdownButton<ApiOption>(
           hint: Text(widget._hint),
           value: widget._options.selected,
+          isExpanded: true,
           onChanged: (val) {
             setState(() {
               widget._options.selected = val;
             });
+            _categoryQuestionCount
+                .setMinMaxAndAmount(widget._options.selected.value);
           },
           items: widget._options.options
               .map(
