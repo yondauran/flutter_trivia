@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_trivia/models/categories.dart';
 import 'package:flutter_trivia/models/category_question_count.dart';
 import 'package:flutter_trivia/pages/trivia.dart';
+import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
 import 'package:flutter_trivia/services/api.dart';
 import 'package:flutter_trivia/services/locator.dart';
 import 'package:provider/provider.dart';
@@ -153,13 +154,15 @@ class HomePage extends StatelessWidget {
                 alignment: Alignment.center,
                 child: OutlineButton(
                   onPressed: () async {
-                    locator.get<Api>().getQuestions(
-                        _categories.selected.id,
-                        _difficulty.selected.value,
-                        _type.selected.value,
-                        _categoryQuestionCount.amount.toInt());
+                    var qs = await locator.get<Api>().getQuestions(
+                          _categories.selected.id,
+                          _difficulty.selected.value,
+                          _type.selected.value,
+                          _categoryQuestionCount.amount.toInt(),
+                        );
 
-                    Navigator.pushNamed(context, "/trivia");
+                    Navigator.pushNamed(context, "/trivia",
+                        arguments: TriviaArguments(questions: qs));
                   },
                   child: Text("Start"),
                 ),

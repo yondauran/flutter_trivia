@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_trivia/models/api_response.dart';
 import 'package:flutter_trivia/models/categories.dart';
 import 'package:flutter_trivia/models/category_question_count.dart';
 import 'package:http/http.dart' as http;
@@ -29,18 +30,18 @@ class Api {
     return questionCount.counts;
   }
 
-  getQuestions(
-      dynamic category, dynamic difficulty, dynamic type, int amount) async {
+  Future<List<Question>> getQuestions(
+      dynamic category, String difficulty, String type, int amount) async {
     _baseUrl += "amount=$amount";
 
     if (category != "any") _baseUrl += "&category=${category.toString()}";
-    if (difficulty != "any") _baseUrl += "&difficulty=${difficulty.toString()}";
-    if (type != "any") _baseUrl += "&type=${type.toString()}";
+    if (difficulty != "any") _baseUrl += "&difficulty=$difficulty";
+    if (type != "any") _baseUrl += "&type=$type";
 
     print(_baseUrl);
-//    var res = await client.get("https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple");
-//    var apiResponse = ApiResponse.fromJson(json.decode(res.body));
-//
-//    return apiResponse.questions;
+    var res = await client.get(_baseUrl);
+    var apiResponse = ApiResponse.fromJson(json.decode(res.body));
+
+    return apiResponse.questions;
   }
 }

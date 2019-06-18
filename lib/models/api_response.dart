@@ -31,6 +31,7 @@ class Question {
   String question;
   String correctAnswer;
   List<String> incorrectAnswers;
+  String selectedAnswer;
 
   Question(
       {this.category,
