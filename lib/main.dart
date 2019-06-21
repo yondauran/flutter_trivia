@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_trivia/models/categories.dart';
 import 'package:flutter_trivia/models/category_question_count.dart';
+import 'package:flutter_trivia/pages/results.dart';
 import 'package:flutter_trivia/pages/trivia.dart';
 import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
 import 'package:flutter_trivia/services/api.dart';
@@ -37,7 +38,8 @@ class MyApp extends StatelessWidget {
               ],
               child: HomePage(),
             ),
-        '/trivia': (context) => Trivia()
+        '/trivia': (context) => Trivia(),
+        '/results': (context) => Results()
       },
       initialRoute: '/',
     );

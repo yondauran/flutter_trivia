@@ -7,10 +7,10 @@ import 'package:http/http.dart' as http;
 
 class Api {
   final client = http.Client();
+  String _baseUrl = "https://opentdb.com/api.php?";
   String _categoriesUrl = "https://opentdb.com/api_category.php";
   String _categoryQuestionCountUrl =
       "https://opentdb.com/api_count.php?category=";
-  String _baseUrl = "https://opentdb.com/api.php?";
 
   Future<List<TriviaCategory>> getCategories() async {
     var res = await client.get(_categoriesUrl);
@@ -32,14 +32,16 @@ class Api {
 
   Future<List<Question>> getQuestions(
       dynamic category, String difficulty, String type, int amount) async {
-    _baseUrl += "amount=$amount";
+    var questionsUrl = _baseUrl;
 
-    if (category != "any") _baseUrl += "&category=${category.toString()}";
-    if (difficulty != "any") _baseUrl += "&difficulty=$difficulty";
-    if (type != "any") _baseUrl += "&type=$type";
+    questionsUrl += "amount=$amount";
 
-    print(_baseUrl);
-    var res = await client.get(_baseUrl);
+    if (category != "any") questionsUrl += "&category=${category.toString()}";
+    if (difficulty != "any") questionsUrl += "&difficulty=$difficulty";
+    if (type != "any") questionsUrl += "&type=$type";
+
+    print(questionsUrl);
+    var res = await client.get(questionsUrl);
     var apiResponse = ApiResponse.fromJson(json.decode(res.body));
 
     return apiResponse.questions;
