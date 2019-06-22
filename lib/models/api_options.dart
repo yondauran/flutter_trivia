@@ -25,8 +25,9 @@ class ApiDifficulty extends BaseOptions {
 
 class TriviaType extends BaseOptions {
   TriviaType() {
-    options.add(ApiOption("Any", "any"));
+    // options.add(ApiOption("Any", "any"));
     options.add(ApiOption("Multiple Choice", "multiple"));
+    // options.add(ApiOption("True / False", "boolean"));
     selected = options[0];
   }
 }

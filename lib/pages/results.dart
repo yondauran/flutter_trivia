@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_trivia/models/api_response.dart';
 import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
-import 'package:flutter_trivia/widgets/choice.dart';
 
 class Results extends StatelessWidget {
   @override
@@ -17,28 +16,40 @@ class Results extends StatelessWidget {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Results"),
+      ),
       body: SafeArea(
         child: Column(
           // mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Results: \n",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(fontSize: 24),
+                  children: [
+                    TextSpan(
+                      text: "You got ",
                     ),
-                  ),
-                  TextSpan(
-                    text:
-                        "${getCorrectAnswers()} out of ${questions.length} correct",
-                    style: TextStyle(
-                      fontSize: 18,
+                    TextSpan(
+                      text: getCorrectAnswers().toString(),
+                      style: TextStyle(
+                        color: Colors.orange[300],
+                      ),
                     ),
-                  ),
-                ],
+                    TextSpan(
+                      text: " out of ",
+                    ),
+                    TextSpan(
+                      text: questions.length.toString(),
+                      style: TextStyle(
+                        color: Colors.orange[700],
+                      ),
+                    ),
+                    TextSpan(text: " correct!")
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -48,19 +59,29 @@ class Results extends StatelessWidget {
                 itemBuilder: (context, i) {
                   List<String> answers =
                       List.from(questions[i].incorrectAnswers)
-                        ..add(questions[i].correctAnswer)
-                        ..shuffle();
+                        ..add(questions[i].correctAnswer);
 
                   return Container(
-                    padding: EdgeInsets.all(8),
+                    margin: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.blueGrey[800],
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
+                        Text(
+                          "Question ${i + 1}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            questions[i].question + i.toString(),
-                            style: TextStyle(fontSize: 38),
+                            questions[i].question,
+                            style: TextStyle(fontSize: 32),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -69,11 +90,13 @@ class Results extends StatelessWidget {
                         ),
                         if (questions != null)
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               for (var ans in answers)
                                 Text(
-                                  ans,
+                                  "${indexToLetter[answers.indexOf(ans)]}) $ans",
                                   style: TextStyle(
+                                    fontSize: 18,
                                     color: questions[i].selectedAnswer == ans &&
                                             questions[i].selectedAnswer ==
                                                 questions[i].correctAnswer

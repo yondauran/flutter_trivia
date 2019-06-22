@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_trivia/models/categories.dart';
 import 'package:flutter_trivia/models/questions.dart';
 import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
 import 'package:flutter_trivia/widgets/choice.dart';
 import 'package:provider/provider.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 
 class Trivia extends StatelessWidget {
   final Map<int, String> indexToLetter = {0: 'a', 1: 'b', 2: 'c', 3: 'd'};
@@ -12,6 +12,7 @@ class Trivia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TriviaArguments args = ModalRoute.of(context).settings.arguments;
+    var unescape = new HtmlUnescape();
 
     void nextQuestion(Questions provider) {
       if (_controller.page == args.questions.length - 1) {
@@ -33,6 +34,7 @@ class Trivia extends StatelessWidget {
           title: Text(args.questions[0].category),
         ),
         body: PageView.builder(
+          physics: NeverScrollableScrollPhysics(),
           controller: _controller,
           itemCount: args.questions.length,
           itemBuilder: (context, index) {
@@ -50,29 +52,26 @@ class Trivia extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        data.questions[index].question + index.toString(),
-                        style: TextStyle(fontSize: 38),
+                        unescape.convert(
+                            data.questions[index].question + index.toString()),
+                        style: TextStyle(fontSize: 34),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    SizedBox(
-                      height: 48,
-                    ),
                     if (data.questions != null)
-                      Column(
-                        children: <Widget>[
-                          for (var ans in answers)
-                            new Choice(
-                              question: data.questions[index].question,
-                              letter: indexToLetter[answers.indexOf(ans)],
-                              text: ans,
-                              callback: nextQuestion,
-                            ),
-                          // new Choice(letter: "a", text: "Hello"),
-                          // new Choice(letter: "b", text: "How"),
-                          // new Choice(letter: "c", text: "Are"),
-                          // new Choice(letter: "d", text: "You?"),
-                        ],
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            for (var ans in answers)
+                              new Choice(
+                                question: data.questions[index].question,
+                                letter: indexToLetter[answers.indexOf(ans)],
+                                text: ans,
+                                callback: nextQuestion,
+                              ),
+                          ],
+                        ),
                       ),
                   ],
                 );
