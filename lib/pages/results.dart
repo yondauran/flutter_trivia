@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_trivia/models/api_response.dart';
 import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
+import 'package:flutter_trivia/services/locator.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 
 class Results extends StatelessWidget {
   @override
@@ -8,11 +12,27 @@ class Results extends StatelessWidget {
     final TriviaArguments args = ModalRoute.of(context).settings.arguments;
     final List<Question> questions = args.questions;
     final Map<int, String> indexToLetter = {0: 'a', 1: 'b', 2: 'c', 3: 'd'};
+    final unescape = locator.get<HtmlUnescape>();
+    final ascii = locator.get<AsciiCodec>();
 
     int getCorrectAnswers() {
       return questions
           .where((val) => val.selectedAnswer == val.correctAnswer)
           .length;
+    }
+
+    Color getChoiceColors(String selected, String correct, String choice) {
+      if (choice == selected) {
+        if (choice == correct)
+          return Colors.green;
+        else
+          return Colors.red;
+      } else {
+        if (choice == correct)
+          return Colors.green;
+        else
+          return Colors.white;
+      }
     }
 
     return Scaffold(
@@ -25,36 +45,39 @@ class Results extends StatelessWidget {
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(top: 8),
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(fontSize: 24),
-                  children: [
-                    TextSpan(
-                      text: "You got ",
-                    ),
-                    TextSpan(
-                      text: getCorrectAnswers().toString(),
-                      style: TextStyle(
-                        color: Colors.orange[300],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 24),
+                    children: [
+                      TextSpan(
+                        text: "You got ",
                       ),
-                    ),
-                    TextSpan(
-                      text: " out of ",
-                    ),
-                    TextSpan(
-                      text: questions.length.toString(),
-                      style: TextStyle(
-                        color: Colors.orange[700],
+                      TextSpan(
+                        text: getCorrectAnswers().toString(),
+                        style: TextStyle(
+                          color: Colors.orange[300],
+                        ),
                       ),
-                    ),
-                    TextSpan(text: " correct!")
-                  ],
+                      TextSpan(
+                        text: " out of ",
+                      ),
+                      TextSpan(
+                        text: questions.length.toString(),
+                        style: TextStyle(
+                          color: Colors.orange[700],
+                        ),
+                      ),
+                      TextSpan(text: " correct!")
+                    ],
+                  ),
                 ),
               ),
             ),
             Expanded(
               child: PageView.builder(
-                // controller: PageController(viewportFraction: 0.8),
+                controller: PageController(viewportFraction: 0.9),
                 itemCount: questions.length,
                 itemBuilder: (context, i) {
                   List<String> answers =
@@ -73,14 +96,15 @@ class Results extends StatelessWidget {
                         Text(
                           "Question ${i + 1}",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey[300],
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            questions[i].question,
+                            unescape.convert(questions[i].question),
                             style: TextStyle(fontSize: 32),
                             textAlign: TextAlign.center,
                           ),
@@ -94,25 +118,16 @@ class Results extends StatelessWidget {
                             children: <Widget>[
                               for (var ans in answers)
                                 Text(
-                                  "${indexToLetter[answers.indexOf(ans)]}) $ans",
+                                  "${indexToLetter[answers.indexOf(ans)]}) ${ascii.decode(ascii.encode(unescape.convert(ans)))}",
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: questions[i].selectedAnswer == ans &&
-                                            questions[i].selectedAnswer ==
-                                                questions[i].correctAnswer
-                                        ? Colors.green
-                                        : questions[i].selectedAnswer == ans &&
-                                                questions[i].selectedAnswer !=
-                                                    questions[i].correctAnswer
-                                            ? Colors.red
-                                            : Colors.white,
+                                    color: getChoiceColors(
+                                      questions[i].selectedAnswer,
+                                      questions[i].correctAnswer,
+                                      ans,
+                                    ),
                                   ),
                                 )
-                              // new Choice(
-                              //   question: questions[i].question,
-                              //   letter: indexToLetter[answers.indexOf(ans)],
-                              //   text: ans,
-                              // ),
                             ],
                           ),
                       ],

@@ -81,6 +81,16 @@ class HomePage extends StatelessWidget {
             ] else ...[
               Column(
                 children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 60),
+                    child: Text(
+                      "It's Trivia Time!",
+                      style: TextStyle(
+                        fontFamily: "Pacifico",
+                        fontSize: 32,
+                      ),
+                    ),
+                  ),
                   Text("Category"),
                   SizedBox(
                     height: 56,
