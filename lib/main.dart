@@ -109,9 +109,9 @@ class HomePage extends StatelessWidget {
                           ? _categories.triviaCategories
                               .map(
                                 (o) => DropdownMenuItem<TriviaCategory>(
-                                      value: o,
-                                      child: Text(o.name),
-                                    ),
+                                  value: o,
+                                  child: Text(o.name),
+                                ),
                               )
                               .toList()
                           : null,
@@ -220,9 +220,9 @@ class _OptionsSelectorState extends State<OptionsSelector> {
           items: widget._options.options
               .map(
                 (o) => DropdownMenuItem<ApiOption>(
-                      value: o,
-                      child: Text(o.text),
-                    ),
+                  value: o,
+                  child: Text(o.text),
+                ),
               )
               .toList(),
         ),

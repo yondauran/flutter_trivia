@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_trivia/helpers/trivia_text_parser.dart';
 import 'package:flutter_trivia/models/api_response.dart';
 import 'package:flutter_trivia/route_arguments/trivia_arguments.dart';
 import 'package:flutter_trivia/services/locator.dart';
-import 'package:html_unescape/html_unescape_small.dart';
 
 class Results extends StatelessWidget {
   @override
@@ -12,8 +10,7 @@ class Results extends StatelessWidget {
     final TriviaArguments args = ModalRoute.of(context).settings.arguments;
     final List<Question> questions = args.questions;
     final Map<int, String> indexToLetter = {0: 'a', 1: 'b', 2: 'c', 3: 'd'};
-    final unescape = locator.get<HtmlUnescape>();
-    final ascii = locator.get<AsciiCodec>();
+    final textParser = locator.get<TriviaTextParser>();
 
     int getCorrectAnswers() {
       return questions
@@ -104,7 +101,7 @@ class Results extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            unescape.convert(questions[i].question),
+                            textParser.parseText(questions[i].question),
                             style: TextStyle(fontSize: 32),
                             textAlign: TextAlign.center,
                           ),
@@ -118,7 +115,7 @@ class Results extends StatelessWidget {
                             children: <Widget>[
                               for (var ans in answers)
                                 Text(
-                                  "${indexToLetter[answers.indexOf(ans)]}) ${ascii.decode(ascii.encode(unescape.convert(ans)))}",
+                                  "${indexToLetter[answers.indexOf(ans)]}) ${textParser.parseText(ans)}",
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: getChoiceColors(
@@ -135,6 +132,13 @@ class Results extends StatelessWidget {
                   );
                 },
               ),
+            ),
+            RaisedButton(
+              child: Text("Pick again"),
+              onPressed: () {
+                Navigator.of(context).pushNamed("/");
+              },
+              color: Theme.of(context).buttonColor,
             )
           ],
         ),

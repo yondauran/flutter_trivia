@@ -42,7 +42,9 @@ class Api {
 
     print(questionsUrl);
     var res = await client.get(questionsUrl);
-    var apiResponse = ApiResponse.fromJson(json.decode(res.body));
+    var body = json.decode(res.body);
+
+    var apiResponse = ApiResponse.fromJson(body);
 
     return apiResponse.questions;
   }
