@@ -1,5 +1,6 @@
 # User Defined
 *.drawio
+ios/Flutter/flutter_export_environment.sh
 
 # Miscellaneous
 *.class
